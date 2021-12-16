@@ -1,0 +1,19 @@
+---
+- hosts: webserver
+  become: true
+  tasks:
+    - name: install apache
+      apt: name=apache2 state=present update_cache=yes
+      
+    - name: deleted index.html
+      file: path=/var/www/html/index.html state=absent
+      notify: restart apache2
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted
+      
+    - name: set up index.html for first web server
+      copy: content="<html>
+              <header><title>Welcome to Mine Server</title></header>
+              <body>Hello from Mine Server</body></html>" dest=/var/www/html/index.html mode=0644
+      notify: restart apache2
